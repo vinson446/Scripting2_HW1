@@ -12,6 +12,7 @@ public abstract class CollectibleBase : MonoBehaviour
 
     [SerializeField] ParticleSystem collectParticles;
     [SerializeField] AudioClip collectSound;
+    [SerializeField] float collectSoundVolume;
 
     Rigidbody rb;
 
@@ -56,7 +57,7 @@ public abstract class CollectibleBase : MonoBehaviour
         // audio
         if (collectSound != null)
         {
-            AudioHelper.PlayClip2D(collectSound, 1f);
+            AudioHelper.PlayClip2D(collectSound, collectSoundVolume);
         }
     }
 }

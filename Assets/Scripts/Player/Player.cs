@@ -5,20 +5,38 @@ using UnityEngine;
 [RequireComponent(typeof(BallMotor))]
 public class Player : MonoBehaviour
 {
-    //TODO- offload health into a Health.cs script
     [SerializeField] int maxHealth = 3;
     int currentHealth;
+    public int CurrentHealth
+    {
+        get => currentHealth;
+        set => currentHealth = value;
+    }
+
+    [SerializeField] int treasure;
+
+    [SerializeField] bool isInvincible = false;
+
+    [SerializeField] AudioClip deathSound;
+    [SerializeField] float deathSoundVolume;
 
     BallMotor _ballMotor;
+
+    UIManager UIManager;
 
     private void Awake()
     {
         _ballMotor = GetComponent<BallMotor>();
+
+        UIManager = FindObjectOfType<UIManager>();
     }
 
     private void Start()
     {
         currentHealth = maxHealth;
+
+        UIManager.UpdateHealthText(currentHealth, maxHealth);
+        UIManager.UpdateTreasureText(treasure);
     }
 
     private void FixedUpdate()
@@ -28,7 +46,6 @@ public class Player : MonoBehaviour
 
     private void ProcessMovement()
     {
-        //TODO move into Input script
         float moveHorizontal = Input.GetAxis("Horizontal");
         float moveVertical = Input.GetAxis("Vertical");
 
@@ -39,26 +56,55 @@ public class Player : MonoBehaviour
 
     public void IncreaseHealth(int amount)
     {
+        currentHealth += amount;
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-        Debug.Log("Player's health: " + currentHealth);
+
+        UIManager.UpdateHealthText(currentHealth, maxHealth);
     }
 
     public void DecreaseHealth(int amount)
     {
-        currentHealth -= amount;
-        Debug.Log("Player's health: " + currentHealth);
-
-        if (currentHealth <= 0)
+        if (!isInvincible)
         {
-            Kill();
+            currentHealth -= amount;
+            UIManager.UpdateHealthText(currentHealth, maxHealth);
+
+            if (currentHealth <= 0)
+            {
+                Kill();
+            }
         }
     }
 
     public void Kill()
     {
-        gameObject.SetActive(false);
+        if (!isInvincible)
+        {
+            gameObject.SetActive(false);
 
-        // play particles
-        // play sounds
+            UIManager.UpdateHealthText(0, maxHealth);
+
+            Feedback();
+        }
+    }
+
+    void Feedback()
+    {
+        // audio
+        if (deathSound != null)
+        {
+            AudioHelper.PlayClip2D(deathSound, deathSoundVolume);
+        }
+    }
+
+    public void IncreaseTreasure(int amount)
+    {
+        treasure += amount;
+        UIManager.UpdateTreasureText(treasure);
+    }
+
+    public void SetInvincibilityStatus(bool status)
+    {
+        isInvincible = status;
     }
 }

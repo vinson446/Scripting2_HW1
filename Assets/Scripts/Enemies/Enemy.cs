@@ -6,20 +6,21 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] int damageAmount = 1;
+    protected int DamageAmount
+    {
+        get => damageAmount;
+        set => damageAmount = value;
+    }
+
     [SerializeField] ParticleSystem impactParticles;
     [SerializeField] AudioClip impactSound;
+    [SerializeField] float impactSoundVolume;
 
     Rigidbody rb;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();    
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
     }
 
     // Update is called once per frame
@@ -56,10 +57,10 @@ public class Enemy : MonoBehaviour
             impactParticles = Instantiate(impactParticles, transform.position, Quaternion.identity);
         }
 
-        // audio, TODO- consider object pooling for performance
+        // audio
         if (impactSound != null)
         {
-            AudioHelper.PlayClip2D(impactSound, 1f);
+            AudioHelper.PlayClip2D(impactSound, impactSoundVolume);
         }
     }
 }
